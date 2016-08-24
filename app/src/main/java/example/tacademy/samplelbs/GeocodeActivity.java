@@ -13,18 +13,16 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
-import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.ActivityRecognition;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -39,36 +37,39 @@ import java.util.Map;
 
 import example.tacademy.samplelbs.data.Poi;
 
-public class GeocodeActivity extends AppCompatActivity  implements
+public class GeocodeActivity extends AppCompatActivity implements
         OnMapReadyCallback, GoogleMap.OnCameraMoveListener,
         GoogleMap.OnMapClickListener,
         GoogleMap.OnMarkerClickListener,
         GoogleMap.OnInfoWindowClickListener,
-        GoogleMap.OnMarkerDragListener{
+        GoogleMap.OnMarkerDragListener,
+        GoogleApiClient.OnConnectionFailedListener,
+        GoogleApiClient.ConnectionCallbacks{
 
     LocationManager mLM;
 
     String mProvider = LocationManager.NETWORK_PROVIDER;
-    TextView messageView;
-
-    ListView listView;
-    ArrayAdapter<Address> mAdapter;
-    EditText keywordView;
+//    TextView messageView;
+//
+//    ListView listView;
+//    ArrayAdapter<Address> mAdapter;
+//    EditText keywordView;
 
     GoogleMap map;
-    Map<Poi,Marker> markerResolver = new HashMap<>();
+    Map<Poi, Marker> markerResolver = new HashMap<>();
     Map<Marker, Poi> poiResolver = new HashMap<>();
+    GoogleApiClient mApiClient;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_geocode);
-        messageView = (TextView)findViewById(R.id.text_message);
-        keywordView = (EditText)findViewById(R.id.edit_keyword);
-        listView = (ListView)findViewById(R.id.listView);
-        mAdapter = new ArrayAdapter<Address>(this, android.R.layout.simple_list_item_1);
-        listView.setAdapter(mAdapter);
+//        messageView = (TextView)findViewById(R.id.text_message);
+//        keywordView = (EditText)findViewById(R.id.edit_keyword);
+//        listView = (ListView)findViewById(R.id.listView);
+//        mAdapter = new ArrayAdapter<Address>(this, android.R.layout.simple_list_item_1);
+//        listView.setAdapter(mAdapter);
         SupportMapFragment fragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map_fragment);
         fragment.getMapAsync((OnMapReadyCallback) this);
@@ -84,53 +85,61 @@ public class GeocodeActivity extends AppCompatActivity  implements
 
         mProvider = mLM.getBestProvider(criteria, true);
 
-        if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)!= PackageManager.PERMISSION_GRANTED){
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             requestLocationPermission();
         }
 
-        Button btn = (Button)findViewById(R.id.btn_convert);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String keyword = keywordView.getText().toString();
-                if(!TextUtils.isEmpty(keyword)){
-                    convertAddressToLocation(keyword);
-                }
-            }
-        });
+        mApiClient = new GoogleApiClient.Builder(this)
+                .addApi(LocationServices.API)
+                .addApi(ActivityRecognition.API)
+                .addConnectionCallbacks(this)
+                .enableAutoManage(this, this)
+                .build();
     }
 
-    private void convertAddressToLocation(String keyword){
-        if(Geocoder.isPresent()){
+
+//        Button btn = (Button) findViewById(R.id.btn_convert);
+//        btn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                String keyword = keywordView.getText().toString();
+//                if(!TextUtils.isEmpty(keyword)){
+//                    convertAddressToLocation(keyword);
+//            }
+//        });
+//    }
+
+    private void convertAddressToLocation(String keyword) {
+        if (Geocoder.isPresent()) {
             Geocoder geocoder = new Geocoder(this, Locale.KOREAN);
             try {
-                List<Address> list = geocoder.getFromLocationName(keyword,10);
-                mAdapter.clear();
-                mAdapter.addAll(list);
+                List<Address> list = geocoder.getFromLocationName(keyword, 10);
+//                mAdapter.clear();
+//                mAdapter.addAll(list);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    private void convertLocationToAddress(Location location){
-        if(Geocoder.isPresent()){
-            Geocoder geocoder = new Geocoder(this,Locale.KOREAN);
+    private void convertLocationToAddress(Location location) {
+        if (Geocoder.isPresent()) {
+            Geocoder geocoder = new Geocoder(this, Locale.KOREAN);
             try {
-                List<Address> list = geocoder.getFromLocation(location.getLatitude(),location.getLongitude(),10);
-                mAdapter.clear();
-                mAdapter.addAll(list);
+                List<Address> list = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 10);
+//                mAdapter.clear();
+//                mAdapter.addAll(list);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    private void requestLocationPermission(){
-        if(ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.ACCESS_FINE_LOCATION)){
+    private void requestLocationPermission() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
 
         }
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},RC_LOCATION_PERMISSION);
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, RC_LOCATION_PERMISSION);
     }
 
     private static final int RC_LOCATION_PERMISSION = 100;
@@ -138,14 +147,14 @@ public class GeocodeActivity extends AppCompatActivity  implements
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(requestCode == RC_LOCATION_PERMISSION){
-            if(permissions != null && permissions.length >0){
-                if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+        if (requestCode == RC_LOCATION_PERMISSION) {
+            if (permissions != null && permissions.length > 0) {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     return;
                 }
             }
         }
-        Toast.makeText(this,"need location permission",Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "need location permission", Toast.LENGTH_SHORT).show();
         finish();
     }
 
@@ -154,39 +163,39 @@ public class GeocodeActivity extends AppCompatActivity  implements
     @Override
     protected void onStart() {
         super.onStart();
-        if(ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION)!= PackageManager.PERMISSION_GRANTED){
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        if(!mLM.isProviderEnabled(mProvider)){
-            if(isFirst){
+        if (!mLM.isProviderEnabled(mProvider)) {
+            if (isFirst) {
                 startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
                 isFirst = false;
-            } else{
-                Toast.makeText(this,"location enable setting..",Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "location enable setting..", Toast.LENGTH_SHORT).show();
                 finish();
             }
             return;
         }
 
         Location location = mLM.getLastKnownLocation(mProvider);
-        if(location != null){
+        if (location != null) {
 
         }
-        mLM.requestLocationUpdates(mProvider,2000,5,mListener);
+        mLM.requestLocationUpdates(mProvider, 2000, 5, mListener);
 
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
         mLM.removeUpdates(mListener);
     }
 
-    private void displayLocation(Location location){
-        messageView.setText("lat : " + location.getLatitude() + ", lng : " + location.getLongitude());
+    private void displayLocation(Location location) {
+//        messageView.setText("lat : " + location.getLatitude() + ", lng : " + location.getLongitude());
     }
 
     LocationListener mListener = new LocationListener() {
@@ -268,6 +277,21 @@ public class GeocodeActivity extends AppCompatActivity  implements
 
     @Override
     public void onMarkerDragEnd(Marker marker) {
+
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
     }
 }
