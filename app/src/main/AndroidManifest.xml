@@ -39,8 +39,13 @@
         <activity
             android:name=".GeocodeActivity"
             android:exported="true" />
-        <activity android:name=".MapActivity"
-            android:exported="true"></activity>
+        <activity
+            android:name=".MapActivity"
+            android:exported="true" />
+        <activity
+            android:name=".DomapActivity"
+            android:exported="true" />
+        <activity android:name=".GomapActivity"></activity>
     </application>
 
 </manifest>
