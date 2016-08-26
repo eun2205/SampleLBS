@@ -36,7 +36,10 @@
         <activity
             android:name=".GoogleMapActivity"
             android:exported="true" />
-        <activity android:name=".GeocodeActivity"
+        <activity
+            android:name=".GeocodeActivity"
+            android:exported="true" />
+        <activity android:name=".MapActivity"
             android:exported="true"></activity>
     </application>
 

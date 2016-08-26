@@ -46,7 +46,7 @@ public class GeocodeActivity extends AppCompatActivity implements
         GoogleApiClient.OnConnectionFailedListener,
         GoogleApiClient.ConnectionCallbacks{
 
-    LocationManager mLM;
+    LocationManager mLM;// 1. 위치획득을 위해 필요
 
     String mProvider = LocationManager.NETWORK_PROVIDER;
 //    TextView messageView;
@@ -74,7 +74,7 @@ public class GeocodeActivity extends AppCompatActivity implements
                 .findFragmentById(R.id.map_fragment);
         fragment.getMapAsync((OnMapReadyCallback) this);
 
-        mLM = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        mLM = (LocationManager) getSystemService(Context.LOCATION_SERVICE); // 2. 매니저에 대한 코드 작성
         Criteria criteria = new Criteria();
         criteria.setAccuracy(Criteria.ACCURACY_COARSE);
         criteria.setPowerRequirement(Criteria.POWER_HIGH);
@@ -109,7 +109,7 @@ public class GeocodeActivity extends AppCompatActivity implements
 //        });
 //    }
 
-    private void convertAddressToLocation(String keyword) {
+    private void convertAddressToLocation(String keyword) { //주소를 위치로 변경하는 코드
         if (Geocoder.isPresent()) {
             Geocoder geocoder = new Geocoder(this, Locale.KOREAN);
             try {
@@ -122,7 +122,7 @@ public class GeocodeActivity extends AppCompatActivity implements
         }
     }
 
-    private void convertLocationToAddress(Location location) {
+    private void convertLocationToAddress(Location location) { //위치를 주소로 변경하는 코드
         if (Geocoder.isPresent()) {
             Geocoder geocoder = new Geocoder(this, Locale.KOREAN);
             try {
@@ -135,7 +135,7 @@ public class GeocodeActivity extends AppCompatActivity implements
         }
     }
 
-    private void requestLocationPermission() {
+    private void requestLocationPermission() {// 3.퍼미션체크하는 과정이 필요
         if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
 
         }
@@ -177,7 +177,7 @@ public class GeocodeActivity extends AppCompatActivity implements
             return;
         }
 
-        Location location = mLM.getLastKnownLocation(mProvider);
+        Location location = mLM.getLastKnownLocation(mProvider); //위치와 관련된 정보를 담고있는 클래스
         if (location != null) {
 
         }
@@ -198,25 +198,25 @@ public class GeocodeActivity extends AppCompatActivity implements
 //        messageView.setText("lat : " + location.getLatitude() + ", lng : " + location.getLongitude());
     }
 
-    LocationListener mListener = new LocationListener() {
+    LocationListener mListener = new LocationListener() { // 4. 위치정보 획득
         @Override
         public void onLocationChanged(Location location) {
             displayLocation(location);
         }
-
+//새로 픽스된 위치정보가 있으면 호출
         @Override
         public void onStatusChanged(String s, int i, Bundle bundle) {
-
+//provider의 상태가 변경되면 호출. status는 LocationProvider에 정의
         }
 
         @Override
         public void onProviderEnabled(String s) {
-
+//설정에서 등록된 provider가 enabled로 설정되면 호출
         }
 
         @Override
         public void onProviderDisabled(String s) {
-
+//설정에서 등록된 provider가 disabled로 설정되면 호출
         }
     };
 
