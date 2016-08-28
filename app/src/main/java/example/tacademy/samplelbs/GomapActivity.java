@@ -37,6 +37,7 @@ public class GomapActivity extends AppCompatActivity implements OnMapReadyCallba
     GoogleMap map;
     LocationManager mLM;
     String mProvider = LocationManager.NETWORK_PROVIDER;
+    public static Context mContext;
 
     Map<Poi, Marker> markerResolver = new HashMap<>();
     Map<Marker, Poi> poiResolver = new HashMap<>();
@@ -49,6 +50,7 @@ public class GomapActivity extends AppCompatActivity implements OnMapReadyCallba
         SupportMapFragment fragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.maps_fragment);
         fragment.getMapAsync(this);
+        mContext = this;
     }
 
     @Override
@@ -84,7 +86,7 @@ public class GomapActivity extends AppCompatActivity implements OnMapReadyCallba
 
     @Override
     public void onMapClick(LatLng latLng) {
-       // addMarker(latLng.latitude, latLng.longitude, "My Marker");
+         addMarker(latLng.latitude, latLng.longitude, "My Marker");
     }
 
     Marker marker;
@@ -103,7 +105,7 @@ public class GomapActivity extends AppCompatActivity implements OnMapReadyCallba
     }
 
 
-    private void addMarker(double lat double lng, String title) {
+    private void addMarker(double lat, double lng, String title) {
         if (marker != null) {
             marker.remove();
             marker = null;
@@ -117,6 +119,17 @@ public class GomapActivity extends AppCompatActivity implements OnMapReadyCallba
         options.draggable(true);
 
         marker = map.addMarker(options);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
     }
 
     @Override
@@ -157,15 +170,25 @@ public class GomapActivity extends AppCompatActivity implements OnMapReadyCallba
         Log.i("GoogleMapActivity", "lat : " + latLng.latitude + ", lng : " + latLng.longitude);
     }
 
-    LocationListener mListener = new LocationListener() {
 
-        @Override
-        public void onLocationChanged(Location location) {
-            moveMap(location.getLatitude(), location.getLongitude());
+    public void animateMap(double lat, double lng, final Runnable callback) {
+        if (map != null) {
+            CameraUpdate update = CameraUpdateFactory.newLatLng(new LatLng(lat, lng));
+            map.animateCamera(update, new GoogleMap.CancelableCallback() {
+                @Override
+                public void onFinish() {
+                    callback.run();
+                }
+
+                @Override
+                public void onCancel() {
+
+                }
+            });
         }
-    };
+    }
 
-    private void moveMap(double lat, double lng) {
+    public void moveMap(double lat, double lng) {
         if (map != null) {
             LatLng latLng = new LatLng(lat, lng);
             CameraPosition position = new CameraPosition.Builder()
@@ -175,7 +198,17 @@ public class GomapActivity extends AppCompatActivity implements OnMapReadyCallba
                     .zoom(17)
                     .build();
             CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, 17);
+//            CameraUpdate update = CameraUpdateFactory.newCameraPosition(position);
+
             map.moveCamera(update);
+//        map.animateCamera(update);
         }
     }
+
+    LocationListener mListener = new LocationListener() {
+        @Override
+        public void onLocationChanged(Location location) {
+            moveMap(location.getLatitude(), location.getLongitude());
+        }
+    };
 }

@@ -1,5 +1,7 @@
 package example.tacademy.samplelbs;
 
+import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -9,7 +11,9 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.maps.model.Marker;
 
 import java.util.HashMap;
@@ -22,12 +26,15 @@ import example.tacademy.samplelbs.manager.NetworkRequest;
 import example.tacademy.samplelbs.request.POISearchRequest;
 
 public class DomapActivity extends AppCompatActivity {
-
+    //    Geocoder mCoder = new Geocoder(this, Locale.KOREAN);
     EditText searchEdit;
     ListView listView;
     ArrayAdapter<Poi> mAdapter;
+    static double lat, lng;
+    TextView resultView;
+    // lat= mCoder.getFromLocation(location.getL)
 
-    Map<Poi,Marker> markerResolver = new HashMap<>();
+    Map<Poi, Marker> markerResolver = new HashMap<>();
     Map<Marker, Poi> poiResolver = new HashMap<>();
 
     @Override
@@ -58,7 +65,7 @@ public class DomapActivity extends AppCompatActivity {
                             }
                             if (result.getSearchPoiInfo().getPois().getPoi().length > 0) {
                                 Poi poi = result.getSearchPoiInfo().getPois().getPoi()[0];
-                                moveMap(poi.getLatitude(), poi.getLongitude());
+                                ((GomapActivity) GomapActivity.mContext).moveMap(poi.getLatitude(), poi.getLongitude());
                             }
                         }
 
@@ -74,26 +81,27 @@ public class DomapActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                final Poi poi = (Poi)listView.getItemAtPosition(position);
-                animateMap(poi.getLatitude(), poi.getLongitude(), new Runnable() {
+                final Poi poi = (Poi) listView.getItemAtPosition(position);
+                ((GomapActivity) GomapActivity.mContext).animateMap(poi.getLatitude(), poi.getLongitude(), new Runnable() {
                     @Override
                     public void run() {
                         Marker m = markerResolver.get(poi);
                         m.showInfoWindow();
                     }
                 });
+//                displayLocation();
+            }
+        });
+
+        btn = (Button) findViewById(R.id.btn_go);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(DomapActivity.this, GomapActivity.class));
             }
         });
     }
 
-    private void animateMap(double latitude, double longitude, Runnable runnable) {
-    }
-
-    private void moveMap(double latitude, double longitude) {
-    }
-
-//    private void addMarker(Poi poi) {
-//    }
 
     private void clear() {
         for (int i = 0; i < mAdapter.getCount(); i++) {
@@ -104,6 +112,15 @@ public class DomapActivity extends AppCompatActivity {
         mAdapter.clear();
     }
 
+    private void displayLocation(Location location) {
+        resultView.setText("lat : " + location.getLatitude() + ", lng : " + location.getLongitude());
+    }
 
+    LocationListener mListener = new LocationListener() {
+        @Override
+        public void onLocationChanged(Location location) {
+            ((GomapActivity)GomapActivity.mContext).moveMap(location.getLatitude(), location.getLongitude());
+        }
+    };
 
 }

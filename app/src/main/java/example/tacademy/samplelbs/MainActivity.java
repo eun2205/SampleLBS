@@ -4,6 +4,8 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Criteria;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -13,24 +15,43 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     LocationManager mLM;
     String mProvider = LocationManager.NETWORK_PROVIDER;
     TextView messageView;
+    Geocoder mCoder;
+    //   static double lat, lng;
+    static double locX, locY;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        messageView = (TextView) findViewById(R.id.text_message);
+//        messageView = (TextView) findViewById(R.id.text_message);
         mLM = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        criteria.setAccuracy(Criteria.ACCURACY_FINE);
+        criteria.setAltitudeRequired(false);
+        criteria.setBearingRequired(false);
+        criteria.setCostAllowed(true);
+        criteria.setPowerRequirement(Criteria.POWER_LOW);
+        mCoder = new Geocoder(this);
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             requestLocationPermission();
         }
+
+        Button btn = (Button) findViewById(R.id.btn_2);
+
     }
+
+//    List<Address> addr;
+//    String saddr = messageView.getText().toString();
 
     private void requestLocationPermission() {
         if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
@@ -99,13 +120,13 @@ public class MainActivity extends AppCompatActivity {
     LocationListener mListener = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
-
-            displayLocation(location);
+            updateWithNewLocation(location);
+            //  displayLocation(location);
         }
 
         @Override
         public void onStatusChanged(String s, int i, Bundle bundle) {
-
+            updateWithNewLocation(null);
         }
 
         @Override
@@ -119,4 +140,36 @@ public class MainActivity extends AppCompatActivity {
         }
 
     };
+    public static long lat, lng;
+
+    private void updateWithNewLocation(Location location) {
+        String latLongString;
+        TextView myLocationText;
+        myLocationText = (TextView) findViewById(R.id.myLocationText);
+
+
+        if (location != null) {
+            lat = (long) (location.getLatitude() * 100000);
+            lng = (long) (location.getLongitude() * 100000);
+            latLongString = "Lat:" + lat + "\nLong:" + lng;
+        } else {
+            latLongString = "No location found";
+        }
+        myLocationText.setText("Your Current Position is:\n" +
+                latLongString);
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.btn_2: {
+                Intent intent = new Intent(MainActivity.this, Main2Activity.class);
+                //    intent.putExtra(locationg.get)
+                MainActivity.locX = 250;
+                MainActivity.locY = (int) (lat);
+                startActivity(intent);
+                break;
+            }
+        }
+    }
 }

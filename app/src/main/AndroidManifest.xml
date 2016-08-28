@@ -45,7 +45,11 @@
         <activity
             android:name=".DomapActivity"
             android:exported="true" />
-        <activity android:name=".GomapActivity"></activity>
+        <activity
+            android:name=".GomapActivity"
+            android:exported="true" />
+        <activity android:name=".Main2Activity" />
+        <activity android:name=".practiceActivity"></activity>
     </application>
 
 </manifest>
