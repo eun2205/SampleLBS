@@ -99,7 +99,17 @@ public class GeocodeActivity extends AppCompatActivity {
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(GeocodeActivity.this, "lat= "+ lat + "lng= " +lng, Toast.LENGTH_SHORT).show();
+//                Toast.makeText(GeocodeActivity.this, "lat= "+ lat + "lng= " +lng, Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(GeocodeActivity.this, GeocoderActivity.class);
+                Bundle b = new Bundle();
+                b.putDouble("lat", lat);
+                intent.putExtras(b);
+
+                Bundle c = new Bundle();
+                c.putDouble("lng", lng);
+                intent.putExtras(c);
+//                intent.putExtra("hello", "hi");
+                startActivity(intent);
             }
         });
     }

@@ -50,8 +50,10 @@
             android:exported="true" />
         <activity android:name=".Main2Activity" />
         <activity android:name=".practiceActivity" />
-        <activity android:name=".GeocoderActivity"
-            android:exported="true"></activity>
+        <activity
+            android:name=".GeocoderActivity"
+            android:exported="true" />
+        <activity android:name=".IntentActivity"></activity>
     </application>
 
 </manifest>
