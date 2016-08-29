@@ -29,25 +29,26 @@
             android:text="search" />
     </LinearLayout>
 
-    <FrameLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <ListView
             android:id="@+id/listView"
-            android:layout_width="100dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="left|top" />
+            android:layout_width="match_parent"
+            android:layout_height="148dp"
+            android:layout_gravity="center_horizontal|top" />
 
         <fragment
             android:id="@+id/map_fragment"
             android:name="com.google.android.gms.maps.SupportMapFragment"
-            android:layout_width="255dp"
-            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_below="@+id/listView"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:layout_gravity="right|center_vertical" />
-    </FrameLayout>
+            android:layout_alignParentBottom="true" />
+    </RelativeLayout>
 
 </LinearLayout>

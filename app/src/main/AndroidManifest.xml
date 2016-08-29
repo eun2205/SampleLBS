@@ -52,7 +52,12 @@
         <activity
             android:name=".GeocoderActivity"
             android:exported="true" />
-        <activity android:name=".IntentActivity"></activity>
+        <activity android:name=".IntentActivity" />
+        <activity
+            android:name=".CkPersonalDataActivity"
+            android:exported="true" />
+        <activity android:name=".AAAAAAAAAAAActivity"
+            android:exported="true"></activity>
     </application>
 
 </manifest>
