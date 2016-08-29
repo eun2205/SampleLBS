@@ -22,7 +22,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -32,33 +31,20 @@ import java.util.Locale;
 public class GeocodeActivity extends AppCompatActivity {
 
     LocationManager mLM;// 1. 위치획득을 위해 필요
-
     String mProvider = LocationManager.NETWORK_PROVIDER;
-    TextView messageView;
-
     ListView listView;
     ArrayAdapter<Address> mAdapter;
     EditText keywordView;
-
     Address mAddress;
-//    GoogleMap map;
-//    Map<Poi, Marker> markerResolver = new HashMap<>();
-//    Map<Marker, Poi> poiResolver = new HashMap<>();
-//    GoogleApiClient mApiClient;
-//
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_geocode);
-        messageView = (TextView) findViewById(R.id.text_message);
         keywordView = (EditText) findViewById(R.id.edit_keyword);
         listView = (ListView) findViewById(R.id.listView);
         mAdapter = new ArrayAdapter<Address>(this, android.R.layout.simple_list_item_1);
         listView.setAdapter(mAdapter);
-//        SupportMapFragment fragment = (SupportMapFragment) getSupportFragmentManager()
-//                .findFragmentById(R.id.map_fragment);
-//        fragment.getMapAsync((OnMapReadyCallback) this);
 
         mLM = (LocationManager) getSystemService(Context.LOCATION_SERVICE); // 2. 매니저에 대한 코드 작성
         Criteria criteria = new Criteria();
@@ -75,15 +61,6 @@ public class GeocodeActivity extends AppCompatActivity {
             requestLocationPermission();
         }
 
-//        mApiClient = new GoogleApiClient.Builder(this)
-//                .addApi(LocationServices.API)
-//                .addApi(ActivityRecognition.API)
-//                .addConnectionCallbacks(this)
-//                .enableAutoManage(this, this)
-//                .build();
-//    }
-
-
         Button btn = (Button) findViewById(R.id.btn_convert);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -99,7 +76,6 @@ public class GeocodeActivity extends AppCompatActivity {
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                Toast.makeText(GeocodeActivity.this, "lat= "+ lat + "lng= " +lng, Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(GeocodeActivity.this, GeocoderActivity.class);
                 Bundle b = new Bundle();
                 b.putDouble("lat", lat);
@@ -108,7 +84,6 @@ public class GeocodeActivity extends AppCompatActivity {
                 Bundle c = new Bundle();
                 c.putDouble("lng", lng);
                 intent.putExtras(c);
-//                intent.putExtra("hello", "hi");
                 startActivity(intent);
             }
         });
@@ -132,18 +107,18 @@ public class GeocodeActivity extends AppCompatActivity {
         }
     }
 
-    private void convertLocationToAddress(Location location) { //위치를 주소로 변경하는 코드
-        if (Geocoder.isPresent()) {
-            Geocoder geocoder = new Geocoder(this, Locale.KOREAN);
-            try {
-                List<Address> list = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 10);
-                mAdapter.clear();
-                mAdapter.addAll(list);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
+//    private void convertLocationToAddress(Location location) { //위치를 주소로 변경하는 코드
+//        if (Geocoder.isPresent()) {
+//            Geocoder geocoder = new Geocoder(this, Locale.KOREAN);
+//            try {
+//                List<Address> list = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 10);
+//                mAdapter.clear();
+//                mAdapter.addAll(list);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
 
     private void requestLocationPermission() {// 3.퍼미션체크하는 과정이 필요
         if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
@@ -204,14 +179,10 @@ public class GeocodeActivity extends AppCompatActivity {
         mLM.removeUpdates(mListener);
     }
 
-    private void displayLocation(Location location) {
-//        messageView.setText("lat : " + location.getLatitude() + ", lng : " + location.getLongitude());
-    }
-
     LocationListener mListener = new LocationListener() { // 4. 위치정보 획득
         @Override
         public void onLocationChanged(Location location) {
-            displayLocation(location);
+
         }
 
         //새로 픽스된 위치정보가 있으면 호출
@@ -231,80 +202,3 @@ public class GeocodeActivity extends AppCompatActivity {
         }
     };
 }
-
-
-//    @Override
-//    public void onCameraMove() {
-//
-//    }
-//
-//    @Override
-//    public void onInfoWindowClick(Marker marker) {
-//
-//    }
-//
-//    @Override
-//    public void onMapClick(LatLng latLng) {
-//
-//    }
-//
-//    @Override
-//    public void onMapReady(GoogleMap googleMap) {
-//        map = googleMap;
-//        map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-////        map.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-////        map.setIndoorEnabled(true);
-////        map.setBuildingsEnabled(true);
-////        map.setTrafficEnabled(true);
-//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//            return;
-//        }
-//        map.setMyLocationEnabled(true);
-//
-//        map.getUiSettings().setCompassEnabled(true);
-//        map.getUiSettings().setZoomControlsEnabled(true);
-//        map.setOnCameraMoveListener(this);
-//        map.setOnMapClickListener(this);
-//        map.setOnMarkerClickListener(this);
-//        map.setOnInfoWindowClickListener(this);
-//        map.setOnMarkerDragListener(this);
-//
-//        map.setInfoWindowAdapter(new MyInfoWindow(this, poiResolver));
-//    }
-//
-//    @Override
-//    public boolean onMarkerClick(Marker marker) {
-//        return false;
-//    }
-//
-//    @Override
-//    public void onMarkerDragStart(Marker marker) {
-//
-//    }
-//
-//    @Override
-//    public void onMarkerDrag(Marker marker) {
-//
-//    }
-//
-//    @Override
-//    public void onMarkerDragEnd(Marker marker) {
-//
-//    }
-//
-//    @Override
-//    public void onConnected(@Nullable Bundle bundle) {
-//
-//    }
-//
-//    @Override
-//    public void onConnectionSuspended(int i) {
-//
-//    }
-//
-//    @Override
-//    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-//
-//    }
-//}
-

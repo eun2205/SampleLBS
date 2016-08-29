@@ -145,7 +145,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void updateWithNewLocation(Location location) {
         String latLongString;
         TextView myLocationText;
-        myLocationText = (TextView) findViewById(R.id.myLocationText);
+//        myLocationText = (TextView) findViewById(R.id.myLocationText);
 
 
         if (location != null) {
@@ -155,21 +155,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else {
             latLongString = "No location found";
         }
-        myLocationText.setText("Your Current Position is:\n" +
-                latLongString);
+//        myLocationText.setText("Your Current Position is:\n" +
+//                latLongString);
     }
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.btn_2: {
-                Intent intent = new Intent(MainActivity.this, Main2Activity.class);
-                //    intent.putExtra(locationg.get)
-                MainActivity.locX = 250;
-                MainActivity.locY = (int) (lat);
-                startActivity(intent);
-                break;
-            }
-        }
     }
 }
