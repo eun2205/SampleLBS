@@ -49,7 +49,9 @@
             android:name=".GomapActivity"
             android:exported="true" />
         <activity android:name=".Main2Activity" />
-        <activity android:name=".practiceActivity"></activity>
+        <activity android:name=".practiceActivity" />
+        <activity android:name=".GeocoderActivity"
+            android:exported="true"></activity>
     </application>
 
 </manifest>

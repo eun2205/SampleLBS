@@ -1,7 +1,10 @@
 package example.tacademy.samplelbs;
 
+import android.content.Context;
 import android.content.Intent;
+import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -31,6 +34,8 @@ public class DomapActivity extends AppCompatActivity {
     ListView listView;
     ArrayAdapter<Poi> mAdapter;
     static double lat, lng;
+    LocationManager mLM;
+    String mProvider = LocationManager.NETWORK_PROVIDER;
     TextView resultView;
     // lat= mCoder.getFromLocation(location.getL)
 
@@ -43,6 +48,16 @@ public class DomapActivity extends AppCompatActivity {
         setContentView(R.layout.activity_domap);
         searchEdit = (EditText) findViewById(R.id.edit_search);
         listView = (ListView) findViewById(R.id.list_search);
+
+        mLM = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        criteria.setAccuracy(Criteria.ACCURACY_COARSE);
+        criteria.setPowerRequirement(Criteria.POWER_HIGH);
+        criteria.setCostAllowed(true);
+        criteria.setAltitudeRequired(false);
+        criteria.setBearingRequired(false);
+        criteria.setSpeedRequired(false);
+        mProvider = mLM.getBestProvider(criteria, true);
         mAdapter = new ArrayAdapter<Poi>(this, android.R.layout.simple_list_item_1);
         listView.setAdapter(mAdapter);
 
@@ -112,9 +127,9 @@ public class DomapActivity extends AppCompatActivity {
         mAdapter.clear();
     }
 
-    private void displayLocation(Location location) {
-        resultView.setText("lat : " + location.getLatitude() + ", lng : " + location.getLongitude());
-    }
+//    private void displayLocation(Location location) {
+//        resultView.setText("lat : " + location.getLatitude() + ", lng : " + location.getLongitude());
+//    }
 
     LocationListener mListener = new LocationListener() {
         @Override
