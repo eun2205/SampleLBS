@@ -96,7 +96,7 @@ public class CkPersonalDataActivity extends AppCompatActivity implements OnMapRe
         mPopup.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                final Poi poi = (Poi)mPopup.getSelectedItem();
+                final Poi poi = (Poi) mPopup.getSelectedItem();
                 animateMap(poi.getLatitude(), poi.getLongitude(), new Runnable() {
                     @Override
                     public void run() {
@@ -110,7 +110,7 @@ public class CkPersonalDataActivity extends AppCompatActivity implements OnMapRe
         addressView.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-mPopup.show();
+                mPopup.show();
             }
 
             @Override
@@ -123,9 +123,10 @@ mPopup.show();
                         @Override
                         public void onSuccess(NetworkRequest<POIResult> request, POIResult result) {
 
-//                            clear();
+                            clear();
+//                            mAdapter.add(result);
 
-                            mAdapter.addAll(result.getSearchPoiInfo().getPois().getPoi());
+                               mAdapter.addAll(result.getSearchPoiInfo().getPois().getPoi());
                             for (Poi poi : result.getSearchPoiInfo().getPois().getPoi()) {
                                 addMarker(poi);
                             }
@@ -150,9 +151,10 @@ mPopup.show();
             }
         });
     }
+
     private void animateMap(double lat, double lng, final Runnable callback) {
         if (map != null) {
-            CameraUpdate update = CameraUpdateFactory.newLatLng(new LatLng(lat,lng));
+            CameraUpdate update = CameraUpdateFactory.newLatLng(new LatLng(lat, lng));
             map.animateCamera(update, new GoogleMap.CancelableCallback() {
                 @Override
                 public void onFinish() {

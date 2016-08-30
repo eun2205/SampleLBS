@@ -14,10 +14,10 @@ public class AAAAAAAAAAAActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_aaaaaaaaaaa);
-        addressView = (EditText)findViewById(R.id.edit_address);
+        addressView = (EditText) findViewById(R.id.edit_address);
         addressView.setEnabled(false);
 
-        Button btn = (Button)findViewById(R.id.btn_change);
+        Button btn = (Button) findViewById(R.id.btn_change);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -31,6 +31,9 @@ public class AAAAAAAAAAAActivity extends AppCompatActivity {
                 startActivity(new Intent(AAAAAAAAAAAActivity.this, DomapActivity.class));
             }
         });
+        Intent intent = getIntent();
+        String address = intent.getStringExtra("address");
+        addressView.setText(address);
     }
 
 }
