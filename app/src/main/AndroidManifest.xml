@@ -11,6 +11,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
+
     <application
         android:name=".MyApplication"
         android:allowBackup="true"
@@ -56,7 +57,10 @@
         <activity
             android:name=".CkPersonalDataActivity"
             android:exported="true" />
-        <activity android:name=".AAAAAAAAAAAActivity"
+        <activity
+            android:name=".AAAAAAAAAAAActivity"
+            android:exported="true" />
+        <activity android:name=".AddressEditActivity"
             android:exported="true"></activity>
     </application>
 

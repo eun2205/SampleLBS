@@ -1,10 +1,10 @@
 package example.tacademy.samplelbs;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -37,6 +37,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.VisibleRegion;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,21 +51,24 @@ import example.tacademy.samplelbs.manager.NetworkManager;
 import example.tacademy.samplelbs.manager.NetworkRequest;
 import example.tacademy.samplelbs.request.POISearchRequest;
 
-public class DomapActivity extends AppCompatActivity implements
+public class AddressEditActivity extends AppCompatActivity implements
         OnMapReadyCallback, GoogleMap.OnCameraMoveListener, GoogleMap.OnInfoWindowClickListener {
 
     GoogleMap map;
     LocationManager mLM;
     String mProvider = LocationManager.NETWORK_PROVIDER;
-
+    ListView addressSearchView;
     EditText keywordView;
-    ListView listView;
+
+//    @BindView(R.id.edit_keyword)
+//    EditText keywordView;
+
     ArrayAdapter<Poi> mAdapter;
 
     Map<Poi, Marker> markerResolver = new HashMap<>();
     Map<Marker, Poi> poiResolver = new HashMap<>();
 
-    private static final String FILE_NAME = System.currentTimeMillis()+".png";
+    private static final String FILE_NAME = System.currentTimeMillis() + ".png";
 
     public File getImageFile() {
         File picture = Environment.getExternalStoragePublicDirectory(
@@ -76,27 +82,27 @@ public class DomapActivity extends AppCompatActivity implements
         return new File(parent, FILE_NAME);
     }
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_google_map);
-        listView = (ListView) findViewById(R.id.listView);
+        setContentView(R.layout.activity_address_edit);
+//        ButterKnife.bind(this);
+        addressSearchView = (ListView)findViewById(R.id.list_address_search);
         mAdapter = new ArrayAdapter<Poi>(this, android.R.layout.simple_list_item_1);
-        listView.setAdapter(mAdapter);
-        keywordView = (EditText) findViewById(R.id.edit_keyword);
+        addressSearchView.setAdapter(mAdapter);
+        keywordView = (EditText)findViewById(R.id.edit_keyword);
         mLM = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         SupportMapFragment fragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map_fragment);
         fragment.getMapAsync(this);
 
-        Button btn = (Button) findViewById(R.id.btn_search);
+        Button btn = (Button)findViewById(R.id.btn_address_search);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String keyword = keywordView.getText().toString();
                 if (!TextUtils.isEmpty(keyword)) {
-                    POISearchRequest request = new POISearchRequest(DomapActivity.this, keyword);
+                    POISearchRequest request = new POISearchRequest(AddressEditActivity.this, keyword);
                     NetworkManager.getInstance().getNetworkData(request, new NetworkManager.OnResultListener<POIResult>() {
                         @Override
                         public void onSuccess(NetworkRequest<POIResult> request, POIResult result) {
@@ -111,9 +117,10 @@ public class DomapActivity extends AppCompatActivity implements
                                     moveMap(poi.getLatitude(), poi.getLongitude());
                                 }
                             } catch (NullPointerException e) {
-                                Toast.makeText(DomapActivity.this, "검색결과 존재하지않습니다.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(AddressEditActivity.this, "검색결과 존재하지않습니다.", Toast.LENGTH_SHORT).show();
                             }
                         }
+
                         @Override
                         public void onFail(NetworkRequest<POIResult> request, int errorCode, String errorMessage, Throwable e) {
                         }
@@ -122,10 +129,10 @@ public class DomapActivity extends AppCompatActivity implements
             }
         });
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        addressSearchView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                final Poi poi = (Poi) listView.getItemAtPosition(position);
+                final Poi poi = (Poi) addressSearchView.getItemAtPosition(position);
                 animateMap(poi.getLatitude(), poi.getLongitude(), new Runnable() {
                     @Override
                     public void run() {
@@ -138,11 +145,41 @@ public class DomapActivity extends AppCompatActivity implements
             }
         });
     }
+//
+//    @OnClick(R.id.btn_address_search)
+//    public void onAddressSearch() {
+//        String keyword = keywordView.getText().toString();
+//        if (!TextUtils.isEmpty(keyword)) {
+//            POISearchRequest request = new POISearchRequest(AddressEditActivity.this, keyword);
+//            NetworkManager.getInstance().getNetworkData(request, new NetworkManager.OnResultListener<POIResult>() {
+//                @Override
+//                public void onSuccess(NetworkRequest<POIResult> request, POIResult result) {
+//
+//                    clear();
+//                    try {
+//                        mAdapter.addAll(result.getSearchPoiInfo().getPois().getPoi());
+//                        for (Poi poi : result.getSearchPoiInfo().getPois().getPoi()) {
+//                        }
+//                        if (result.getSearchPoiInfo().getPois().getPoi().length > 0) {
+//                            Poi poi = result.getSearchPoiInfo().getPois().getPoi()[0];
+//                            moveMap(poi.getLatitude(), poi.getLongitude());
+//                        }
+//                    } catch (NullPointerException e) {
+//                        Toast.makeText(AddressEditActivity.this, "검색결과 존재하지않습니다.", Toast.LENGTH_SHORT).show();
+//                    }
+//                }
+//
+//                @Override
+//                public void onFail(NetworkRequest<POIResult> request, int errorCode, String errorMessage, Throwable e) {
+//                }
+//            });
+//        }
+//    }
 
     private void clear() {
         for (int i = 0; i < mAdapter.getCount(); i++) {
             Poi poi = mAdapter.getItem(i);
-    }
+        }
         mAdapter.clear();
     }
 
@@ -150,7 +187,7 @@ public class DomapActivity extends AppCompatActivity implements
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
         map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
 
@@ -172,19 +209,17 @@ public class DomapActivity extends AppCompatActivity implements
         Marker marker = map.addMarker(options);
         markerResolver.put(poi, marker);
         poiResolver.put(marker, poi);
-        Intent intent = new Intent(getApplicationContext(), AAAAAAAAAAAActivity.class);
-        intent.putExtra("lat", poi.getLatitude());
-        intent.putExtra("lng", poi.getLongitude());
-        startActivity(intent);
     }
+
+
 
     @Override
     protected void onStart() {
         super.onStart();
         if (ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this,
-                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
         Location location = mLM.getLastKnownLocation(mProvider);
@@ -198,9 +233,9 @@ public class DomapActivity extends AppCompatActivity implements
     protected void onStop() {
         super.onStop();
         if (ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this,
-                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
         mLM.removeUpdates(mListener);
@@ -230,9 +265,9 @@ public class DomapActivity extends AppCompatActivity implements
                     .target(latLng)
                     .bearing(30)
                     .tilt(45)
-                    .zoom(17)
+                    .zoom(16)
                     .build();
-            CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, 17);
+            CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, 16);
             map.moveCamera(update);
         }
     }
@@ -269,38 +304,40 @@ public class DomapActivity extends AppCompatActivity implements
 
     @Override
     public void onInfoWindowClick(Marker marker) {
-        Intent intent = new Intent(DomapActivity.this, AAAAAAAAAAAActivity.class);
-//        intent.putExtra("address", marker.getSnippet() + " " + marker.getTitle());
-//        map.snapshot(new GoogleMap.SnapshotReadyCallback() {
-//            @Override
-//            public void onSnapshotReady(Bitmap bitmap) {
-//                File file = getImageFile();
-//                try {
-//                    FileOutputStream fos = new FileOutputStream(file);
-//                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-//                    fos.close();
-//                } catch (FileNotFoundException e) {
-//                    e.printStackTrace();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        });
+        Intent intent = getIntent();
+        intent.putExtra("address", marker.getSnippet() + " " + marker.getTitle());
+        setResult(RESULT_OK, intent);
+        map.snapshot(new GoogleMap.SnapshotReadyCallback() {
+            @Override
+            public void onSnapshotReady(Bitmap bitmap) {
+                File file = getImageFile();
+                try {
+                    FileOutputStream fos = new FileOutputStream(file);
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                    fos.close();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
         checkPermission();
-        startActivity(intent);
+        finish();
     }
+
     private static final int RC_PERMISSION = 100;
 
     private void checkPermission() {
         List<String> permissions = new ArrayList<>();
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
-            permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            permissions.add(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
         }
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
-            permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE);
+            permissions.add(android.Manifest.permission.READ_EXTERNAL_STORAGE);
         }
 
         if (permissions.size() > 0) {
@@ -322,7 +359,7 @@ public class DomapActivity extends AppCompatActivity implements
                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        ActivityCompat.requestPermissions(DomapActivity.this, perms, RC_PERMISSION);
+                        ActivityCompat.requestPermissions(AddressEditActivity.this, perms, RC_PERMISSION);
                     }
                 });
                 builder.create().show();
